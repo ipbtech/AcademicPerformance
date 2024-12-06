@@ -33,6 +33,8 @@ namespace AcademicPerformance.DAL
             modelBuilder.Entity<Score>().HasOne(score => score.Student).WithMany(student => student.Scores)
                 .HasForeignKey(score => score.StudentId).HasPrincipalKey(student => student.Id)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Seed();
         }
     }
 }
