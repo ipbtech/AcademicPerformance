@@ -15,4 +15,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AcademicPerformance.DAL\AcademicPerformance.DAL.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,10 +1,15 @@
+using AcademicPerformance.DAL;
 using AcademicPerformance.WebApp.Components;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+var connString = builder.Configuration.GetConnectionString("Default");
+builder.Services.AddDbContextPool<AppDbContext>(opt => opt.UseSqlite(connString));
 
 var app = builder.Build();
 
