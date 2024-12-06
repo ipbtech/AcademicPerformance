@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AcademicPerformance.Entitie
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AcademicPerformance.DAL", "src\AcademicPerformance.DAL\AcademicPerformance.DAL.csproj", "{D76E476B-F8F1-4A12-A08C-7BB73E0BEBA6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AcademicPerformance.WebApp", "src\AcademicPerformance.WebApp\AcademicPerformance.WebApp.csproj", "{2A2B3456-B181-4B14-9A98-DE19758A4B2E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +31,10 @@ Global
 		{D76E476B-F8F1-4A12-A08C-7BB73E0BEBA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D76E476B-F8F1-4A12-A08C-7BB73E0BEBA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D76E476B-F8F1-4A12-A08C-7BB73E0BEBA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A2B3456-B181-4B14-9A98-DE19758A4B2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A2B3456-B181-4B14-9A98-DE19758A4B2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A2B3456-B181-4B14-9A98-DE19758A4B2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A2B3456-B181-4B14-9A98-DE19758A4B2E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -36,5 +42,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{C7862499-6D5F-416F-BF2A-7BBE8187E5B5} = {8E710313-8B49-4752-9682-E4BDF6D3D739}
 		{D76E476B-F8F1-4A12-A08C-7BB73E0BEBA6} = {DBE0E216-9488-476F-B9C8-CCD98EDF4BC8}
+		{2A2B3456-B181-4B14-9A98-DE19758A4B2E} = {FF6CA1F5-85D8-4C1B-BC3E-79B5D0200197}
 	EndGlobalSection
 EndGlobal

@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AcademicPerformance.Entities
+﻿namespace AcademicPerformance.Entities
 {
-    internal class Subject
+    public class Subject : BaseItem
     {
+        public ICollection<SubjectScore> Scores { get; set; } = [];
     }
 }
