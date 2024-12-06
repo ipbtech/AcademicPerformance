@@ -1,4 +1,4 @@
-﻿namespace AcademicPerformance.Entities
+﻿namespace AcademicPerformance.Entities.Base
 {
     public abstract class BaseItem
     {

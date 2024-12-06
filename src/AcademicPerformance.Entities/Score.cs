@@ -1,16 +1,11 @@
-﻿namespace AcademicPerformance.Entities
-{
-    public enum Score
-    {
-        Bad = 2,
-        OK = 3,
-        Good = 4,
-        Excellent = 5
-    }
+﻿using AcademicPerformance.Entities.Base;
+using AcademicPerformance.Entities.Enums;
 
-    public class SubjectScore : BaseItem
+namespace AcademicPerformance.Entities
+{
+    public class Score : BaseItem
     {
-        public Score Score { get; set; }
+        public ScoreValue ScoreValue { get; set; }
         public int StudentId { get; set; }
         public Student Student { get; set; }
         public int SubjectId { get; set; }
