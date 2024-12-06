@@ -1,0 +1,69 @@
+﻿@page "/students"
+@rendermode InteractiveServer
+
+<PageTitle>Students</PageTitle>
+
+<h1>Students</h1>
+
+
+@* <MudTable Items="@Items" Dense="@true" Filter="new Func<StudentDto,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Periodic Elements</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="search" Placeholder="Search" Adornment="Adornment.Start" 
+            AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0">
+        </MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Nr</MudTh>
+        <MudTh>Sign</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Position</MudTh>
+        <MudTh>Molar mass</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Nr">@context.Number</MudTd>
+        <MudTd DataLabel="Sign">@context.Sign</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Position">@context.Position</MudTd>
+        <MudTd DataLabel="Molar mass">@context.Molar</MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
+
+<div class="d-flex flex-wrap mt-4">
+    <MudSpacer />
+    <div style="min-width:200px;">
+        <MudText Class="align-self-center d-inline">Selected1: @selectedItem?.Name</MudText>
+    </div>
+</div>
+@code {
+    private bool dense = false;
+    private string search = "";
+    private StudentDto selectedItem = null!;
+    //private HashSet<Element> selectedItems = new HashSet<Element>();
+
+    private IEnumerable<StudentDto> Items = new List<StudentDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        //Items = await httpClient.GetFromJsonAsync<List<Element>>("webapi/periodictable");
+    }
+
+    private bool FilterFunc1(StudentDto element) => FilterFunc(element, search);
+
+    private bool FilterFunc(StudentDto element, string searchString)
+    {
+        // if (string.IsNullOrWhiteSpace(searchString))
+        //     return true;
+        // if (element.Sign.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+        //     return true;
+        // if (element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+        //     return true;
+        // if ($"{element.Number} {element.Position} {element.Molar}".Contains(searchString))
+        //     return true;
+        return false;
+    }
+} *@

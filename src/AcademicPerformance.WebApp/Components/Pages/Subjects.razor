@@ -1,0 +1,132 @@
+﻿@page "/subjects"
+@rendermode InteractiveServer
+@inject IDialogService DialogService
+
+<PageTitle>Subjects</PageTitle>
+
+<h1 style="margin-bottom:24px">Subjects</h1>
+<MudTable Items="@tableItems" Dense="@true" Filter="new Func<SubjectDto,bool>(FilterItems)">
+    <ToolBarContent>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+        @onclick="OpenCreateDialogAsync">Create</MudButton>
+        <MudSpacer />
+        <MudTextField @bind-Value="search" Placeholder="Search" Adornment="Adornment.Start" 
+        AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"/>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Name</MudTh>
+        <MudTh>AverageGrade</MudTh>
+        <MudTh></MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="AverageGrade">@context.AverageGrade</MudTd>
+        <MudTd DataLabel="Edit">
+            <MudIconButton Icon="@Icons.Material.Filled.EditNote" Color="@Color.Primary"
+            @onclick="(() => OpenEditDialogAsync(context.Id))"></MudIconButton>
+        </MudTd>
+        <MudTd DataLabel="Del">
+            <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline" Color="@Color.Error"
+            @onclick="(() => OpenDeleteDialogAsync(context.Id))"></MudIconButton>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+
+@code {
+
+    [Inject]
+    private ISubjectService subjectService { get; set; }
+
+    private string search = "";
+    public List<SubjectDto> tableItems = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var items = await subjectService.GetAllAsync();
+        tableItems = items.ToList();
+    }
+
+    private bool FilterItems(SubjectDto element)
+    {
+        if (string.IsNullOrWhiteSpace(search) || string.IsNullOrEmpty(search))
+            return true;
+        if (element.Name.Contains(search, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+
+    private async Task OpenDeleteDialogAsync(int id)
+    {
+        var parameters = new DialogParameters<DeleteDialog>
+        {
+            { x => x.ContentText, "Do you really want to delete this record?" },
+            { x => x.ButtonText, "Delete" },
+            { x => x.Color, Color.Error },
+            { x => x.ElementId, id },
+            { x => x.ActionMethod, new Func<int,Task>(DeleteItemAsync)}
+        };
+        var options = new DialogOptions() { CloseButton = true };
+        var dialog = await DialogService.ShowAsync<DeleteDialog>("Delete", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            var callBackData = result.Data;
+            tableItems.RemoveAll(subject => subject.Id == (int)callBackData);
+        }
+    }
+
+    private async Task DeleteItemAsync(int id) => await subjectService.DeleteAsync(id);
+
+    private async Task OpenCreateDialogAsync()
+    {
+        var parameters = new DialogParameters<CreateFormDialog>
+        {
+            { x => x.ButtonText, "Create" },
+            { x => x.Color, Color.Primary },
+            { x => x.ActionMethod, new Func<string,Task>(CreateItemAsync)}
+        };
+        var options = new DialogOptions() { CloseButton = true };
+        var dialog = await DialogService.ShowAsync<CreateFormDialog>("Create", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            var callBackData = result.Data;
+            tableItems.Add(new SubjectDto { Name = (string)callBackData });
+        }
+    }
+
+    private async Task CreateItemAsync(string name)
+    {
+        var dto = new SubjectDto { Name = name };
+        await subjectService.CreateAsync(dto);
+    }
+
+    private async Task OpenEditDialogAsync(int id)
+    {
+        var item = await subjectService.GetByIdAsync(id);
+        if (item is null)
+            return;
+
+        var parameters = new DialogParameters<EditFormDialog>
+        {
+            { x => x.ButtonText, "Edit" },
+            { x => x.Color, Color.Primary },
+            { x => x.ActionMethod, new Func<string,Task>(CreateItemAsync)}
+        };
+        var options = new DialogOptions() 
+        { 
+            CloseButton = true, 
+            BackdropClick = true, 
+            CloseOnEscapeKey = true 
+        };
+        var dialog = await DialogService.ShowAsync<EditFormDialog>("Create", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            var callBackData = result.Data;
+            tableItems.Add(new SubjectDto { Name = (string)callBackData });
+        }
+    }
+}

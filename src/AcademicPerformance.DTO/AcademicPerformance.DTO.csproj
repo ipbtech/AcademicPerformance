@@ -6,8 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\AcademicPerformance.DTO\AcademicPerformance.DTO.csproj" />
-  </ItemGroup>
-
 </Project>

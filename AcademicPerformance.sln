@@ -19,6 +19,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AcademicPerformance.Contact
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AcademicPerformance.DAL", "src\AcademicPerformance.DAL\AcademicPerformance.DAL.csproj", "{C914D9DD-9321-48A0-8C8D-AF58F34945B5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AcademicPerformance.DTO", "src\AcademicPerformance.DTO\AcademicPerformance.DTO.csproj", "{BB4C755F-A1DE-4933-851C-CFB9F08F7D03}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AcademicPerformance.Services", "src\AcademicPerformance.Services\AcademicPerformance.Services.csproj", "{9C400F07-A048-4C24-9E11-A2FFFF464007}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +45,14 @@ Global
 		{C914D9DD-9321-48A0-8C8D-AF58F34945B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C914D9DD-9321-48A0-8C8D-AF58F34945B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C914D9DD-9321-48A0-8C8D-AF58F34945B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB4C755F-A1DE-4933-851C-CFB9F08F7D03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB4C755F-A1DE-4933-851C-CFB9F08F7D03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB4C755F-A1DE-4933-851C-CFB9F08F7D03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB4C755F-A1DE-4933-851C-CFB9F08F7D03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C400F07-A048-4C24-9E11-A2FFFF464007}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C400F07-A048-4C24-9E11-A2FFFF464007}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C400F07-A048-4C24-9E11-A2FFFF464007}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C400F07-A048-4C24-9E11-A2FFFF464007}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,5 +62,7 @@ Global
 		{2A2B3456-B181-4B14-9A98-DE19758A4B2E} = {FF6CA1F5-85D8-4C1B-BC3E-79B5D0200197}
 		{12918E73-7C57-4E51-956D-7F1BAE1A855E} = {8E710313-8B49-4752-9682-E4BDF6D3D739}
 		{C914D9DD-9321-48A0-8C8D-AF58F34945B5} = {DBE0E216-9488-476F-B9C8-CCD98EDF4BC8}
+		{BB4C755F-A1DE-4933-851C-CFB9F08F7D03} = {8E710313-8B49-4752-9682-E4BDF6D3D739}
+		{9C400F07-A048-4C24-9E11-A2FFFF464007} = {8E710313-8B49-4752-9682-E4BDF6D3D739}
 	EndGlobalSection
 EndGlobal

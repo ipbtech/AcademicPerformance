@@ -1,6 +1,9 @@
+using AcademicPerformance.Contacts;
 using AcademicPerformance.DAL;
+using AcademicPerformance.Services;
 using AcademicPerformance.WebApp.Components;
 using Microsoft.EntityFrameworkCore;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,8 +11,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddServerSideBlazor(opt => { });
+builder.Services.AddMudServices();
+
 var connString = builder.Configuration.GetConnectionString("Default");
 builder.Services.AddDbContextPool<AppDbContext>(opt => opt.UseSqlite(connString));
+
+builder.Services.AddScoped<ISubjectService, SubjectService>();
+builder.Services.AddAutoMapper(opt => opt.AddProfile<MappingProfile>());
+
 
 var app = builder.Build();
 
