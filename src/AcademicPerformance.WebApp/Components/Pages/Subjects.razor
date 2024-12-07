@@ -24,7 +24,7 @@
         <MudTd DataLabel="AverageGrade">@context.AverageGrade</MudTd>
         <MudTd DataLabel="Edit">
             <MudIconButton Icon="@Icons.Material.Filled.EditNote" Color="@Color.Primary"
-            @onclick="(() => OpenEditDialogAsync(context.Id))"></MudIconButton>
+            @onclick="(() => OpenEditDialogAsync(context))"></MudIconButton>
         </MudTd>
         <MudTd DataLabel="Del">
             <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline" Color="@Color.Error"
@@ -81,14 +81,14 @@
 
     private async Task OpenCreateDialogAsync()
     {
-        var parameters = new DialogParameters<CreateFormDialog>
+        var parameters = new DialogParameters<CreateSubjectFormDialog>
         {
             { x => x.ButtonText, "Create" },
             { x => x.Color, Color.Primary },
             { x => x.ActionMethod, new Func<string,Task>(CreateItemAsync)}
         };
         var options = new DialogOptions() { CloseButton = true };
-        var dialog = await DialogService.ShowAsync<CreateFormDialog>("Create", parameters, options);
+        var dialog = await DialogService.ShowAsync<CreateSubjectFormDialog>("Create", parameters, options);
         var result = await dialog.Result;
         if (!result.Canceled)
         {
@@ -103,17 +103,14 @@
         await subjectService.CreateAsync(dto);
     }
 
-    private async Task OpenEditDialogAsync(int id)
+    private async Task OpenEditDialogAsync(SubjectDto current)
     {
-        var item = await subjectService.GetByIdAsync(id);
-        if (item is null)
-            return;
-
-        var parameters = new DialogParameters<EditFormDialog>
+        var parameters = new DialogParameters<EditSubjectFormDialog>
         {
             { x => x.ButtonText, "Edit" },
             { x => x.Color, Color.Primary },
-            { x => x.ActionMethod, new Func<string,Task>(CreateItemAsync)}
+            { x => x.CurrentSubject, current },
+            { x => x.ActionMethod, new Func<int, SubjectDto,Task>(EditItemAsync)}
         };
         var options = new DialogOptions() 
         { 
@@ -121,12 +118,19 @@
             BackdropClick = true, 
             CloseOnEscapeKey = true 
         };
-        var dialog = await DialogService.ShowAsync<EditFormDialog>("Create", parameters, options);
+        var dialog = await DialogService.ShowAsync<EditSubjectFormDialog>("Edit", parameters, options);
         var result = await dialog.Result;
         if (!result.Canceled)
         {
-            var callBackData = result.Data;
-            tableItems.Add(new SubjectDto { Name = (string)callBackData });
+            var callBackData = (SubjectDto)result.Data;
+            var ind = tableItems.FindIndex(s => s.Id == callBackData?.Id);
+            tableItems.RemoveAt(ind);
+            tableItems.Insert(ind, callBackData);
         }
+    }
+
+    private async Task EditItemAsync(int id, SubjectDto dto)
+    {
+        await subjectService.UpdateAsync(id, dto);
     }
 }

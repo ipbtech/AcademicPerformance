@@ -9,8 +9,10 @@ namespace AcademicPerformance.Services
         public MappingProfile() 
         {
             CreateMap<SubjectDto, Subject>();
-            CreateMap<Subject, SubjectDto>();
-                //.ForMember(dto => dto.AverageGrade, opt => opt.MapFrom())
+            CreateMap<Subject, SubjectDto>()
+                .ForMember(dto => dto.AverageGrade, opt =>
+                    opt.MapFrom(src => src.Scores.Any() ?
+                        Math.Round(src.Scores.Select(s => (int)s.ScoreValue).Average(), 1) : 0));
         }
     }
 }

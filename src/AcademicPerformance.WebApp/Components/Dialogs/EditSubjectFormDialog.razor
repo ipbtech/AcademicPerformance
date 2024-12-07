@@ -1,8 +1,8 @@
 ﻿<MudDialog>
     <DialogContent>
         <MudForm @ref="form">
-            <MudTextField T="string" Label="Subject name" Required="true" RequiredError="Subject name is required" 
-            @bind-Value="value" Style="margin-block:16px"/>
+            <MudTextField T="string" Label="Subject name" Required="true" @bind-Value="CurrentSubject.Name"
+            RequiredError="Subject name is required" Style="margin-block:16px"/>
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -25,18 +25,20 @@
     public Color Color { get; set; }
 
     [Parameter]
-    public Func<string, Task> ActionMethod { get; set; }
+    public SubjectDto CurrentSubject { get; set; }
+
+    [Parameter]
+    public Func<int, SubjectDto, Task> ActionMethod { get; set; }
 
     private MudForm form;
-    private string value;
 
 
     private async void Submit()
     {
         if (ActionMethod is not null)
         {
-            await ActionMethod(value);
-            MudDialog.Close(DialogResult.Ok(value));
+            await ActionMethod(CurrentSubject.Id, CurrentSubject);
+            MudDialog.Close(DialogResult.Ok(CurrentSubject));
         }
     }
 

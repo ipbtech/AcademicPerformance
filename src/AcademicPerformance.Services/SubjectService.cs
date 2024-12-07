@@ -23,8 +23,18 @@ namespace AcademicPerformance.Services
 
         public async Task<IEnumerable<SubjectDto>> GetAllAsync()
         {
-            var subjects = await _dbContext.Subjects.AsNoTracking().ToListAsync();
-            return _mapper.Map<IEnumerable<SubjectDto>>(subjects);
+            try
+            {
+                var subjects = await _dbContext.Subjects.AsNoTracking()
+                    .Include(s => s.Scores).ToListAsync();
+
+                return _mapper.Map<IEnumerable<SubjectDto>>(subjects);
+            }
+            catch (Exception ex) 
+            {
+                _logger.LogError("Unhandled {@Exception} was occurs with message:{@Message}", ex, ex.Message);
+                throw;
+            }
         }
 
         public async Task<SubjectDto?> GetByIdAsync(int id)
@@ -41,9 +51,11 @@ namespace AcademicPerformance.Services
             _logger.LogInformation("New subject with Id:{@SubjectId} was created", subject.Id);
         }
 
-        public async Task UpdateAsync(SubjectDto subjectDto)
+        public async Task UpdateAsync(int id, SubjectDto subjectDto)
         {
-            var subject = _mapper.Map<Subject>(subjectDto);
+            var subject = await _dbContext.Subjects.FindAsync(id);
+            _mapper.Map(subjectDto, subject);
+
             _dbContext.Subjects.Update(subject);
             await _dbContext.SaveChangesAsync();
             _logger.LogInformation("Subject with Id:{@SubjectId} was updated", subject.Id);
