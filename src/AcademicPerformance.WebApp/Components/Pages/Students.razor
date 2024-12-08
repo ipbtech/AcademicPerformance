@@ -3,6 +3,7 @@
 @attribute [StreamRendering]
 
 @inject IDialogService DialogService
+@inject NavigationManager NavManager
 
 <PageTitle>Students</PageTitle>
 
@@ -42,14 +43,14 @@
             <MudTr>
                 <td colspan="3">
                     <MudCard Elevation="0">
-                        <MudCardHeader>
-                            <CardHeaderContent>
-                                <MudText Typo="Typo.body1"><strong>@context.Name</strong>'s educational grades</MudText>
-                            </CardHeaderContent>
-                        </MudCardHeader>
-                        <MudCardContent>
-                            @if (context.Scores.Any())
-                            {
+                        @if (context.Scores.Any())
+                        {
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.body1"><strong>@context.Name</strong>'s educational grades</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent>
                                 <div style="padding:16px">
                                     @foreach (var score in context.Scores)
                                     {
@@ -60,17 +61,30 @@
                                             <MudRating @bind-SelectedValue="score.Score" />
                                         </div>
                                     }
-                                    <MudButton Variant="Variant.Filled" Color="Color.Primary" 
-                                    @onclick="(async () => await UpdateStudentScoresAsync(context.Id))">Update
+                                    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                                               @onclick="(async () => await UpdateStudentScoresAsync(context.Id))">
+                                        Update
                                     </MudButton>
                                 </div>
-                            }
-                        </MudCardContent>
+                            </MudCardContent>
+                        }
+                        else
+                        {
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.body1"><strong>@context.Name</strong>' hasn't educational grades</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent></MudCardContent>
+                        }
                     </MudCard>
                 </td>
             </MudTr>
         }
     </ChildRowContent>
+    <PagerContent>
+        <MudTablePager PageSizeOptions="new int[] { 5, 10, 15 }" />
+    </PagerContent>
 </MudTable>
 
 
@@ -136,10 +150,11 @@
         var result = await dialog.Result;
         if (!result.Canceled)
         {
-            StateHasChanged();
-            
+            // feature for updating data without refreshing page
             //var callBackData = result.Data;
             //tableItems.Add(new SubjectDto { Name = (string)callBackData });
+            StateHasChanged();
+            NavManager.Refresh(true);
         }
     }
 
@@ -162,19 +177,52 @@
         var result = await dialog.Result;
         if (!result.Canceled)
         {
-            var callBackData = result.Data;
-            tableItems.RemoveAll(subject => subject.Id == (int)callBackData);
+            // feature for updating data without refreshing page
+            // var callBackData = result.Data;
+            // tableItems.RemoveAll(subject => subject.Id == (int)callBackData);
+            StateHasChanged();
+            NavManager.Refresh(true);
         }
     }
 
     private async Task UpdateStudentScoresAsync(int id)
     {
-        var tempItem = tableItems.First(f => f.Id == id);
-        var scores = tempItem.Scores;
-        await studentService.UpdateStudentScoresAsync(scores);
+        try 
+        {
+            var tempItem = tableItems.First(f => f.Id == id);
+            var scores = tempItem.Scores;
+            await studentService.UpdateStudentScoresAsync(scores);
+
+            StateHasChanged();
+            NavManager.Refresh(true);
+        }
+        catch
+        {
+            NavManager.NavigateTo("/error");
+        }
     }
 
-    private async Task CreateItemAsync(StudentDto dto) => await studentService.CreateAsync(dto);
+    private async Task CreateItemAsync(StudentDto dto)
+    {
+        try
+        {
+            await studentService.CreateAsync(dto);
+        }
+        catch
+        {
+            NavManager.NavigateTo("/error");
+        }
+    }
 
-    private async Task DeleteItemAsync(int id) => await studentService.DeleteAsync(id);
+    private async Task DeleteItemAsync(int id)
+    {
+        try
+        {
+            await studentService.DeleteAsync(id);
+        }
+        catch
+        {
+            NavManager.NavigateTo("/error");
+        }
+    }
 }

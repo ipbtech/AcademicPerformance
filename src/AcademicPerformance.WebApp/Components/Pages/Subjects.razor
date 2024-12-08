@@ -3,6 +3,7 @@
 @attribute [StreamRendering]
 
 @inject IDialogService DialogService
+@inject NavigationManager NavManager
 
 <PageTitle>Subjects</PageTitle>
 
@@ -10,7 +11,7 @@
 <MudTable Items="@tableItems" Dense="@true" Filter="new Func<SubjectDto,bool>(FilterItems)">
     <ToolBarContent>
         <MudButton Variant="Variant.Filled" Color="Color.Primary"
-        @onclick="OpenCreateDialogAsync">Create</MudButton>
+        @onclick="(async () => await OpenCreateDialogAsync())">Create</MudButton>
         <MudSpacer />
         <MudTextField @bind-Value="search" Placeholder="Search" Adornment="Adornment.Start" 
         AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"/>
@@ -26,11 +27,11 @@
         <MudTd DataLabel="AverageGrade">@context.AverageGrade</MudTd>
         <MudTd DataLabel="Edit">
             <MudIconButton Icon="@Icons.Material.Filled.EditNote" Color="@Color.Primary"
-            @onclick="(() => OpenEditDialogAsync(context))"></MudIconButton>
+            @onclick="(async () => await OpenEditDialogAsync(context))"></MudIconButton>
         </MudTd>
         <MudTd DataLabel="Del">
             <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline" Color="@Color.Error"
-            @onclick="(() => OpenDeleteDialogAsync(context.Id))"></MudIconButton>
+            @onclick="(async () => await OpenDeleteDialogAsync(context.Id))"></MudIconButton>
         </MudTd>
     </RowTemplate>
 </MudTable>
@@ -77,9 +78,11 @@
         var result = await dialog.Result;
         if (!result.Canceled)
         {
-            var callBackData = result.Data;
-            tableItems.Add(new SubjectDto { Name = (string)callBackData });
+            // feature for updating data without refreshing page
+            // var callBackData = result.Data;
+            // tableItems.Add(new SubjectDto { Name = (string)callBackData });
             StateHasChanged();
+            NavManager.Refresh(true);
         }
     }
 
@@ -102,11 +105,13 @@
         var result = await dialog.Result;
         if (!result.Canceled)
         {
-            var callBackData = (SubjectDto)result.Data;
-            var ind = tableItems.FindIndex(s => s.Id == callBackData?.Id);
-            tableItems.RemoveAt(ind);
-            tableItems.Insert(ind, callBackData);
+            // feature for updating data without refreshing page
+            // var callBackData = (SubjectDto)result.Data;
+            // var ind = tableItems.FindIndex(s => s.Id == callBackData?.Id);
+            // tableItems.RemoveAt(ind);
+            // tableItems.Insert(ind, callBackData);
             StateHasChanged();
+            NavManager.Refresh(true);
         }
     }
 
@@ -129,15 +134,47 @@
         var result = await dialog.Result;
         if (!result.Canceled)
         {
-            var callBackData = result.Data;
-            tableItems.RemoveAll(subject => subject.Id == (int)callBackData);
+            // feature for updating data without refreshing page
+            // var callBackData = result.Data;
+            // tableItems.RemoveAll(subject => subject.Id == (int)callBackData);
             StateHasChanged();
+            NavManager.Refresh(true);
         }
     }
 
-    private async Task CreateItemAsync(SubjectDto dto) => await subjectService.CreateAsync(dto);
+    private async Task CreateItemAsync(SubjectDto dto)
+    {
+        try
+        {
+            await subjectService.CreateAsync(dto);
+        }
+        catch
+        {
+            NavManager.NavigateTo("/error");
+        }
+    }
 
-    private async Task EditItemAsync(int id, SubjectDto dto) => await subjectService.UpdateAsync(id, dto);
+    private async Task EditItemAsync(int id, SubjectDto dto)
+    {
+        try
+        {
+            await subjectService.UpdateAsync(id, dto);
+        }
+        catch
+        {
+            NavManager.NavigateTo("/error");
+        }
+    }
 
-    private async Task DeleteItemAsync(int id) => await subjectService.DeleteAsync(id);
+    private async Task DeleteItemAsync(int id)
+    {
+        try
+        {
+            await subjectService.DeleteAsync(id);
+        }
+        catch
+        {
+            NavManager.NavigateTo("/error");
+        }
+    }
 }
