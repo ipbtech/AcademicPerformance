@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AcademicPerformance.Contacts\AcademicPerformance.Contacts.csproj" />
+    <ProjectReference Include="..\AcademicPerformance.Contracts\AcademicPerformance.Contracts.csproj" />
     <ProjectReference Include="..\AcademicPerformance.DAL\AcademicPerformance.DAL.csproj" />
   </ItemGroup>
 

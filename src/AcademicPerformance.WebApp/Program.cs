@@ -1,6 +1,7 @@
-using AcademicPerformance.Contacts;
+using AcademicPerformance.Contracts;
 using AcademicPerformance.DAL;
 using AcademicPerformance.Services;
+using AcademicPerformance.Services.Helpers;
 using AcademicPerformance.WebApp.Components;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
@@ -18,6 +19,7 @@ var connString = builder.Configuration.GetConnectionString("Default");
 builder.Services.AddDbContextPool<AppDbContext>(opt => opt.UseSqlite(connString));
 
 builder.Services.AddScoped<ISubjectService, SubjectService>();
+builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddAutoMapper(opt => opt.AddProfile<MappingProfile>());
 
 

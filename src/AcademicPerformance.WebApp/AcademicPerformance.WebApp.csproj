@@ -18,7 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AcademicPerformance.Contacts\AcademicPerformance.Contacts.csproj" />
     <ProjectReference Include="..\AcademicPerformance.DAL\AcademicPerformance.DAL.csproj" />
     <ProjectReference Include="..\AcademicPerformance.DTO\AcademicPerformance.DTO.csproj" />
     <ProjectReference Include="..\AcademicPerformance.Services\AcademicPerformance.Services.csproj" />

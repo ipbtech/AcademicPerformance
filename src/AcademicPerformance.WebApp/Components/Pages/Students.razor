@@ -1,69 +1,180 @@
 ﻿@page "/students"
 @rendermode InteractiveServer
+@attribute [StreamRendering]
+
+@inject IDialogService DialogService
 
 <PageTitle>Students</PageTitle>
 
-<h1>Students</h1>
-
-
-@* <MudTable Items="@Items" Dense="@true" Filter="new Func<StudentDto,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem">
+<h1 style="margin-bottom:24px">Students</h1>
+<MudTable Items="@tableItems" Dense="@true" Filter="new Func<StudentDto,bool>(FilterItems)">
     <ToolBarContent>
-        <MudText Typo="Typo.h6">Periodic Elements</MudText>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+        @onclick="(async () => await OpenCreateDialogAsync())">Create</MudButton>
         <MudSpacer />
-        <MudTextField @bind-Value="search" Placeholder="Search" Adornment="Adornment.Start" 
-            AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0">
-        </MudTextField>
+        <MudTextField @bind-Value="search" Placeholder="Search" Adornment="Adornment.Start"
+        AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0" />
     </ToolBarContent>
     <HeaderContent>
-        <MudTh>Nr</MudTh>
-        <MudTh>Sign</MudTh>
         <MudTh>Name</MudTh>
-        <MudTh>Position</MudTh>
-        <MudTh>Molar mass</MudTh>
+        <MudTh>Age</MudTh>
+        <MudTh>AverageGrade</MudTh>
+        <MudTh></MudTh>
+        <MudTh></MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="Nr">@context.Number</MudTd>
-        <MudTd DataLabel="Sign">@context.Sign</MudTd>
         <MudTd DataLabel="Name">@context.Name</MudTd>
-        <MudTd DataLabel="Position">@context.Position</MudTd>
-        <MudTd DataLabel="Molar mass">@context.Molar</MudTd>
+        <MudTd DataLabel="Age">@context.Age</MudTd>
+        <MudTd DataLabel="AverageGrade">@context.AverageGrade</MudTd>
+        <MudTd>
+            <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(async () => await ShowOrHideDetailsAsync(context.Id))">
+                @((context.ShowDetails == true) ? "Hide" : "Show") details
+            </MudButton>
+        </MudTd>
+        <MudTd DataLabel="Del">
+            <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline" Color="@Color.Error"
+            @onclick="(async () => await OpenDeleteDialogAsync(context.Id))"></MudIconButton>
+        </MudTd>
     </RowTemplate>
-    <PagerContent>
-        <MudTablePager />
-    </PagerContent>
+    <ChildRowContent>
+        @if (context.ShowDetails)
+        {
+            <MudTr>
+                <td colspan="3">
+                    <MudCard Elevation="0">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.body1"><strong>@context.Name</strong>'s educational grades</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            @if (context.Scores.Any())
+                            {
+                                <div style="padding:16px">
+                                    @foreach (var score in context.Scores)
+                                    {
+                                        <div style="display:flex; flex-direction:row;justify-content:space-between; align-items:center; margin-bottom:16px">
+                                            <MudText Typo="Typo.subtitle2" Style="margin-right: 10px">
+                                                @(subjects.First(subj => subj.Id == score.SubjectId).Name):
+                                            </MudText>
+                                            <MudRating @bind-SelectedValue="score.Score" />
+                                        </div>
+                                    }
+                                    <MudButton Variant="Variant.Filled" Color="Color.Primary" 
+                                    @onclick="(async () => await UpdateStudentScoresAsync(context.Id))">Update
+                                    </MudButton>
+                                </div>
+                            }
+                        </MudCardContent>
+                    </MudCard>
+                </td>
+            </MudTr>
+        }
+    </ChildRowContent>
 </MudTable>
 
-<div class="d-flex flex-wrap mt-4">
-    <MudSpacer />
-    <div style="min-width:200px;">
-        <MudText Class="align-self-center d-inline">Selected1: @selectedItem?.Name</MudText>
-    </div>
-</div>
-@code {
-    private bool dense = false;
-    private string search = "";
-    private StudentDto selectedItem = null!;
-    //private HashSet<Element> selectedItems = new HashSet<Element>();
 
-    private IEnumerable<StudentDto> Items = new List<StudentDto>();
+
+@code
+{
+
+    [Inject]
+    private IStudentService studentService { get; set; }
+
+    [Inject]
+    private ISubjectService subjectService { get; set; }
+
+    private string search = "";
+    private List<StudentDto> tableItems = new();
+    private List<SubjectDto> subjects = new();
 
     protected override async Task OnInitializedAsync()
     {
-        //Items = await httpClient.GetFromJsonAsync<List<Element>>("webapi/periodictable");
+        var items = await studentService.GetAllAsync();
+        tableItems = items.ToList();
+
+        var subjItems = await subjectService.GetAllAsync();
+        subjects = subjItems.ToList();
     }
 
-    private bool FilterFunc1(StudentDto element) => FilterFunc(element, search);
-
-    private bool FilterFunc(StudentDto element, string searchString)
+    private bool FilterItems(StudentDto element)
     {
-        // if (string.IsNullOrWhiteSpace(searchString))
-        //     return true;
-        // if (element.Sign.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-        //     return true;
-        // if (element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-        //     return true;
-        // if ($"{element.Number} {element.Position} {element.Molar}".Contains(searchString))
-        //     return true;
+        if (string.IsNullOrWhiteSpace(search) || string.IsNullOrEmpty(search))
+            return true;
+        if (element.Name.Contains(search, StringComparison.OrdinalIgnoreCase))
+            return true;
         return false;
     }
-} *@
+
+    private async Task ShowOrHideDetailsAsync(int id)
+    {
+        var tempItem = tableItems.First(f => f.Id == id);
+        if (!tempItem.ShowDetails)
+        {
+            var scores = await studentService.GetStudentScoresAsync(id);
+            tempItem.Scores = scores;
+        }
+        tempItem.ShowDetails = !tempItem.ShowDetails;
+    }
+
+    private async Task OpenCreateDialogAsync()
+    {
+        var parameters = new DialogParameters<CreateStudentFormDialog>
+        {
+            { x => x.Subjects, subjects },
+            { x => x.ActionMethod, new Func<StudentDto,Task>(CreateItemAsync)}
+        };
+
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            BackdropClick = true,
+            CloseOnEscapeKey = true
+        };
+
+        var dialog = await DialogService.ShowAsync<CreateStudentFormDialog>("Create", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            StateHasChanged();
+            
+            //var callBackData = result.Data;
+            //tableItems.Add(new SubjectDto { Name = (string)callBackData });
+        }
+    }
+
+    private async Task OpenDeleteDialogAsync(int id)
+    {
+        var parameters = new DialogParameters<DeleteDialog>
+        {
+            { x => x.ElementId, id },
+            { x => x.ActionMethod, new Func<int,Task>(DeleteItemAsync)}
+        };
+
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            BackdropClick = true,
+            CloseOnEscapeKey = true
+        };
+
+        var dialog = await DialogService.ShowAsync<DeleteDialog>("Delete", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            var callBackData = result.Data;
+            tableItems.RemoveAll(subject => subject.Id == (int)callBackData);
+        }
+    }
+
+    private async Task UpdateStudentScoresAsync(int id)
+    {
+        var tempItem = tableItems.First(f => f.Id == id);
+        var scores = tempItem.Scores;
+        await studentService.UpdateStudentScoresAsync(scores);
+    }
+
+    private async Task CreateItemAsync(StudentDto dto) => await studentService.CreateAsync(dto);
+
+    private async Task DeleteItemAsync(int id) => await studentService.DeleteAsync(id);
+}

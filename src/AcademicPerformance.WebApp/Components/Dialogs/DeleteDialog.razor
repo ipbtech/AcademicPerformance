@@ -1,10 +1,10 @@
 ﻿<MudDialog>
     <DialogContent>
-        <MudText>@ContentText</MudText>
+        <MudText>Do you really want to delete this record?</MudText>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="@Color" Variant="Variant.Filled" OnClick="Submit">@ButtonText</MudButton>
+        <MudButton Color="@Color.Error" Variant="Variant.Filled" OnClick="Submit">Delete</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -16,21 +16,12 @@
     private MudDialogInstance MudDialog { get; set; }
 
     [Parameter]
-    public string ContentText { get; set; }
-
-    [Parameter]
-    public string ButtonText { get; set; }
-
-    [Parameter]
-    public Color Color { get; set; }
-
-    [Parameter]
     public int ElementId { get; set; }
 
     [Parameter]
     public Func<int, Task> ActionMethod { get; set; }
 
-    private async void Submit()
+    private async Task Submit()
     {
         if (ActionMethod is not null)
         {

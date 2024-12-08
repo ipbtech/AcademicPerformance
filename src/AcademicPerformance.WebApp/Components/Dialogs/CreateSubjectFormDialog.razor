@@ -1,13 +1,13 @@
 ﻿<MudDialog>
     <DialogContent>
         <MudForm @ref="form">
-            <MudTextField T="string" Label="Subject name" Required="true" RequiredError="Subject name is required" 
-            @bind-Value="value" Style="margin-block:16px"/>
+            <MudTextField T="string" Label="Subject's Name" Required="true" RequiredError="Name is required"
+            @bind-Value="name" Style="margin-block:16px" />
         </MudForm>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="@Color" Variant="Variant.Filled" OnClick="Submit">@ButtonText</MudButton>
+        <MudButton Color="@Color.Primary" Variant="Variant.Filled" OnClick="Submit">Create</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -19,24 +19,23 @@
     private MudDialogInstance MudDialog { get; set; }
 
     [Parameter]
-    public string ButtonText { get; set; }
-
-    [Parameter]
-    public Color Color { get; set; }
-
-    [Parameter]
-    public Func<string, Task> ActionMethod { get; set; }
+    public Func<SubjectDto, Task> ActionMethod { get; set; }
 
     private MudForm form;
-    private string value;
+    private string name;
 
 
-    private async void Submit()
+    private async Task Submit()
     {
+        await form.Validate();
+        if (!form.IsValid)
+            return;
+        
         if (ActionMethod is not null)
         {
-            await ActionMethod(value);
-            MudDialog.Close(DialogResult.Ok(value));
+            var dto = new SubjectDto { Name = name };
+            await ActionMethod(dto);
+            MudDialog.Close(DialogResult.Ok(name));
         }
     }
 

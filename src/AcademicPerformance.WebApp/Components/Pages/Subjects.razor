@@ -1,5 +1,7 @@
 ﻿@page "/subjects"
 @rendermode InteractiveServer
+@attribute [StreamRendering]
+
 @inject IDialogService DialogService
 
 <PageTitle>Subjects</PageTitle>
@@ -40,11 +42,11 @@
     private ISubjectService subjectService { get; set; }
 
     private string search = "";
-    public List<SubjectDto> tableItems = new();
+    private List<SubjectDto> tableItems = new();
 
     protected override async Task OnInitializedAsync()
     {
-        var items = await subjectService.GetAllAsync();
+        var items = await subjectService.GetAllWithScoresAsync();
         tableItems = items.ToList();
     }
 
@@ -57,67 +59,45 @@
         return false;
     }
 
-    private async Task OpenDeleteDialogAsync(int id)
-    {
-        var parameters = new DialogParameters<DeleteDialog>
-        {
-            { x => x.ContentText, "Do you really want to delete this record?" },
-            { x => x.ButtonText, "Delete" },
-            { x => x.Color, Color.Error },
-            { x => x.ElementId, id },
-            { x => x.ActionMethod, new Func<int,Task>(DeleteItemAsync)}
-        };
-        var options = new DialogOptions() { CloseButton = true };
-        var dialog = await DialogService.ShowAsync<DeleteDialog>("Delete", parameters, options);
-        var result = await dialog.Result;
-        if (!result.Canceled)
-        {
-            var callBackData = result.Data;
-            tableItems.RemoveAll(subject => subject.Id == (int)callBackData);
-        }
-    }
-
-    private async Task DeleteItemAsync(int id) => await subjectService.DeleteAsync(id);
-
     private async Task OpenCreateDialogAsync()
     {
         var parameters = new DialogParameters<CreateSubjectFormDialog>
         {
-            { x => x.ButtonText, "Create" },
-            { x => x.Color, Color.Primary },
-            { x => x.ActionMethod, new Func<string,Task>(CreateItemAsync)}
+            { x => x.ActionMethod, new Func<SubjectDto,Task>(CreateItemAsync)}
         };
-        var options = new DialogOptions() { CloseButton = true };
+
+        var options = new DialogOptions() 
+        { 
+            CloseButton = true,
+            BackdropClick = true,
+            CloseOnEscapeKey = true
+        };
+
         var dialog = await DialogService.ShowAsync<CreateSubjectFormDialog>("Create", parameters, options);
         var result = await dialog.Result;
         if (!result.Canceled)
         {
             var callBackData = result.Data;
             tableItems.Add(new SubjectDto { Name = (string)callBackData });
+            StateHasChanged();
         }
-    }
-
-    private async Task CreateItemAsync(string name)
-    {
-        var dto = new SubjectDto { Name = name };
-        await subjectService.CreateAsync(dto);
     }
 
     private async Task OpenEditDialogAsync(SubjectDto current)
     {
         var parameters = new DialogParameters<EditSubjectFormDialog>
         {
-            { x => x.ButtonText, "Edit" },
-            { x => x.Color, Color.Primary },
             { x => x.CurrentSubject, current },
             { x => x.ActionMethod, new Func<int, SubjectDto,Task>(EditItemAsync)}
         };
+
         var options = new DialogOptions() 
         { 
             CloseButton = true, 
             BackdropClick = true, 
             CloseOnEscapeKey = true 
         };
+
         var dialog = await DialogService.ShowAsync<EditSubjectFormDialog>("Edit", parameters, options);
         var result = await dialog.Result;
         if (!result.Canceled)
@@ -126,11 +106,38 @@
             var ind = tableItems.FindIndex(s => s.Id == callBackData?.Id);
             tableItems.RemoveAt(ind);
             tableItems.Insert(ind, callBackData);
+            StateHasChanged();
         }
     }
 
-    private async Task EditItemAsync(int id, SubjectDto dto)
+    private async Task OpenDeleteDialogAsync(int id)
     {
-        await subjectService.UpdateAsync(id, dto);
+        var parameters = new DialogParameters<DeleteDialog>
+        {
+            { x => x.ElementId, id },
+            { x => x.ActionMethod, new Func<int,Task>(DeleteItemAsync)}
+        };
+
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            BackdropClick = true,
+            CloseOnEscapeKey = true
+        };
+
+        var dialog = await DialogService.ShowAsync<DeleteDialog>("Delete", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            var callBackData = result.Data;
+            tableItems.RemoveAll(subject => subject.Id == (int)callBackData);
+            StateHasChanged();
+        }
     }
+
+    private async Task CreateItemAsync(SubjectDto dto) => await subjectService.CreateAsync(dto);
+
+    private async Task EditItemAsync(int id, SubjectDto dto) => await subjectService.UpdateAsync(id, dto);
+
+    private async Task DeleteItemAsync(int id) => await subjectService.DeleteAsync(id);
 }

@@ -1,0 +1,87 @@
+﻿<MudDialog Style="max-height: 600px">
+    <DialogContent>
+        <MudForm @ref="@form">
+            <div style="margin-block: 8px">
+                <div style="display:flex; flex-direction:row; justify-content:space-between; margin-bottom:4px">
+                    <MudTextField T="string" Label="Student's Name" Style="margin-right:12px"
+                    Required="true" RequiredError="Name is required" @bind-Value="name" />
+                    <MudTextField T="DateTime" Label="Student's birth date" Format="yyyy-MM-dd" InputType="InputType.Date"
+                    @bind-Value="dateTime" Style="width:180px;margin-left:12px"  Required="true" RequiredError="Birth date is required"
+                    Validation="@(new Func<DateTime, string>(ValidateDateTime))" />
+                </div>
+                <MudButton OnClick="OnExpandCollapseClick" FullWidth="true">Educational Grades</MudButton>
+                <MudDivider />
+                <MudCollapse Expanded="gradesExpanded">
+                    @foreach (var subj in Subjects)
+                    {
+                        <div style="display:flex; flex-direction:row;justify-content:space-between; align-items:center">
+                            <MudText Typo="Typo.subtitle2" Style="margin-right: 10px">@(subj.Name):</MudText>
+                            <MudRating @bind-SelectedValue="subj.Score" />
+                        </div>
+                    }
+                </MudCollapse>
+            </div>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="@Color.Primary" Variant="Variant.Filled" OnClick="Submit">Create</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+
+@code {
+
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public List<SubjectDto> Subjects { get; set; }
+
+    [Parameter]
+    public Func<StudentDto, Task> ActionMethod { get; set; }
+
+    private MudForm form;
+    private bool formHasErrors = false;
+    private List<string> errors = new();
+    private bool gradesExpanded;
+
+    private string name;
+    private DateTime dateTime = DateTime.Today;
+
+    private void OnExpandCollapseClick() => gradesExpanded = !gradesExpanded;
+
+    private async Task Submit()
+    {
+        await form.Validate();
+        if (!form.IsValid)
+            return;
+
+        if (ActionMethod is not null)
+        {
+            var dto = new StudentDto()
+            {
+                Name = name,
+                BirthDate = dateTime,
+                Scores = Subjects.Where(s => s.Score != 0).Select(s => new ScoreDto
+                {
+                    SubjectId = s.Id,
+                    Score = s.Score
+                })
+            };
+
+            await ActionMethod(dto);
+            MudDialog.Close(DialogResult.Ok(name));
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private string? ValidateDateTime(DateTime dateTime)
+    {
+        if (dateTime > DateTime.Today.AddYears(-16))
+            return "Student must be older 16";
+        return null;
+    }
+}
