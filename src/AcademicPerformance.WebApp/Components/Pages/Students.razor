@@ -1,0 +1,228 @@
+﻿@page "/students"
+@rendermode InteractiveServer
+@attribute [StreamRendering]
+
+@inject IDialogService DialogService
+@inject NavigationManager NavManager
+
+<PageTitle>Students</PageTitle>
+
+<h1 style="margin-bottom:24px">Students</h1>
+<MudTable Items="@tableItems" Dense="@true" Filter="new Func<StudentDto,bool>(FilterItems)">
+    <ToolBarContent>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+        @onclick="(async () => await OpenCreateDialogAsync())">Create</MudButton>
+        <MudSpacer />
+        <MudTextField @bind-Value="search" Placeholder="Search" Adornment="Adornment.Start"
+        AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0" />
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Name</MudTh>
+        <MudTh>Age</MudTh>
+        <MudTh>AverageGrade</MudTh>
+        <MudTh></MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Age">@context.Age</MudTd>
+        <MudTd DataLabel="AverageGrade">@context.AverageGrade</MudTd>
+        <MudTd>
+            <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(async () => await ShowOrHideDetailsAsync(context.Id))">
+                @((context.ShowDetails == true) ? "Hide" : "Show") details
+            </MudButton>
+        </MudTd>
+        <MudTd DataLabel="Del">
+            <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline" Color="@Color.Error"
+            @onclick="(async () => await OpenDeleteDialogAsync(context.Id))"></MudIconButton>
+        </MudTd>
+    </RowTemplate>
+    <ChildRowContent>
+        @if (context.ShowDetails)
+        {
+            <MudTr>
+                <td colspan="3">
+                    <MudCard Elevation="0">
+                        @if (context.Scores.Any())
+                        {
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.body1"><strong>@context.Name</strong>'s educational grades</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <div style="padding:16px">
+                                    @foreach (var score in context.Scores)
+                                    {
+                                        <div style="display:flex; flex-direction:row;justify-content:space-between; align-items:center; margin-bottom:16px">
+                                            <MudText Typo="Typo.subtitle2" Style="margin-right: 10px">
+                                                @(subjects.First(subj => subj.Id == score.SubjectId).Name):
+                                            </MudText>
+                                            <MudRating @bind-SelectedValue="score.Score" />
+                                        </div>
+                                    }
+                                    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                                               @onclick="(async () => await UpdateStudentScoresAsync(context.Id))">
+                                        Update
+                                    </MudButton>
+                                </div>
+                            </MudCardContent>
+                        }
+                        else
+                        {
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.body1"><strong>@context.Name</strong>' hasn't educational grades</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent></MudCardContent>
+                        }
+                    </MudCard>
+                </td>
+            </MudTr>
+        }
+    </ChildRowContent>
+    <PagerContent>
+        <MudTablePager PageSizeOptions="new int[] { 5, 10, 15 }" />
+    </PagerContent>
+</MudTable>
+
+
+
+@code
+{
+
+    [Inject]
+    private IStudentService studentService { get; set; }
+
+    [Inject]
+    private ISubjectService subjectService { get; set; }
+
+    private string search = "";
+    private List<StudentDto> tableItems = new();
+    private List<SubjectDto> subjects = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var items = await studentService.GetAllAsync();
+        tableItems = items.ToList();
+
+        var subjItems = await subjectService.GetAllAsync();
+        subjects = subjItems.ToList();
+    }
+
+    private bool FilterItems(StudentDto element)
+    {
+        if (string.IsNullOrWhiteSpace(search) || string.IsNullOrEmpty(search))
+            return true;
+        if (element.Name.Contains(search, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+
+    private async Task ShowOrHideDetailsAsync(int id)
+    {
+        var tempItem = tableItems.First(f => f.Id == id);
+        if (!tempItem.ShowDetails)
+        {
+            var scores = await studentService.GetStudentScoresAsync(id);
+            tempItem.Scores = scores;
+        }
+        tempItem.ShowDetails = !tempItem.ShowDetails;
+    }
+
+    private async Task OpenCreateDialogAsync()
+    {
+        var parameters = new DialogParameters<CreateStudentFormDialog>
+        {
+            { x => x.Subjects, subjects },
+            { x => x.ActionMethod, new Func<StudentDto,Task>(CreateItemAsync)}
+        };
+
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            BackdropClick = true,
+            CloseOnEscapeKey = true
+        };
+
+        var dialog = await DialogService.ShowAsync<CreateStudentFormDialog>("Create", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            // feature for updating data without refreshing page
+            //var callBackData = result.Data;
+            //tableItems.Add(new SubjectDto { Name = (string)callBackData });
+            StateHasChanged();
+            NavManager.Refresh(true);
+        }
+    }
+
+    private async Task OpenDeleteDialogAsync(int id)
+    {
+        var parameters = new DialogParameters<DeleteDialog>
+        {
+            { x => x.ElementId, id },
+            { x => x.ActionMethod, new Func<int,Task>(DeleteItemAsync)}
+        };
+
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            BackdropClick = true,
+            CloseOnEscapeKey = true
+        };
+
+        var dialog = await DialogService.ShowAsync<DeleteDialog>("Delete", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            // feature for updating data without refreshing page
+            // var callBackData = result.Data;
+            // tableItems.RemoveAll(subject => subject.Id == (int)callBackData);
+            StateHasChanged();
+            NavManager.Refresh(true);
+        }
+    }
+
+    private async Task UpdateStudentScoresAsync(int id)
+    {
+        try 
+        {
+            var tempItem = tableItems.First(f => f.Id == id);
+            var scores = tempItem.Scores;
+            await studentService.UpdateStudentScoresAsync(scores);
+
+            StateHasChanged();
+            NavManager.Refresh(true);
+        }
+        catch
+        {
+            NavManager.NavigateTo("/error");
+        }
+    }
+
+    private async Task CreateItemAsync(StudentDto dto)
+    {
+        try
+        {
+            await studentService.CreateAsync(dto);
+        }
+        catch
+        {
+            NavManager.NavigateTo("/error");
+        }
+    }
+
+    private async Task DeleteItemAsync(int id)
+    {
+        try
+        {
+            await studentService.DeleteAsync(id);
+        }
+        catch
+        {
+            NavManager.NavigateTo("/error");
+        }
+    }
+}

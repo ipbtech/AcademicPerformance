@@ -1,0 +1,180 @@
+﻿@page "/subjects"
+@rendermode InteractiveServer
+@attribute [StreamRendering]
+
+@inject IDialogService DialogService
+@inject NavigationManager NavManager
+
+<PageTitle>Subjects</PageTitle>
+
+<h1 style="margin-bottom:24px">Subjects</h1>
+<MudTable Items="@tableItems" Dense="@true" Filter="new Func<SubjectDto,bool>(FilterItems)">
+    <ToolBarContent>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+        @onclick="(async () => await OpenCreateDialogAsync())">Create</MudButton>
+        <MudSpacer />
+        <MudTextField @bind-Value="search" Placeholder="Search" Adornment="Adornment.Start" 
+        AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"/>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Name</MudTh>
+        <MudTh>AverageGrade</MudTh>
+        <MudTh></MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="AverageGrade">@context.AverageGrade</MudTd>
+        <MudTd DataLabel="Edit">
+            <MudIconButton Icon="@Icons.Material.Filled.EditNote" Color="@Color.Primary"
+            @onclick="(async () => await OpenEditDialogAsync(context))"></MudIconButton>
+        </MudTd>
+        <MudTd DataLabel="Del">
+            <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline" Color="@Color.Error"
+            @onclick="(async () => await OpenDeleteDialogAsync(context.Id))"></MudIconButton>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+
+@code {
+
+    [Inject]
+    private ISubjectService subjectService { get; set; }
+
+    private string search = "";
+    private List<SubjectDto> tableItems = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var items = await subjectService.GetAllWithScoresAsync();
+        tableItems = items.ToList();
+    }
+
+    private bool FilterItems(SubjectDto element)
+    {
+        if (string.IsNullOrWhiteSpace(search) || string.IsNullOrEmpty(search))
+            return true;
+        if (element.Name.Contains(search, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+
+    private async Task OpenCreateDialogAsync()
+    {
+        var parameters = new DialogParameters<CreateSubjectFormDialog>
+        {
+            { x => x.ActionMethod, new Func<SubjectDto,Task>(CreateItemAsync)}
+        };
+
+        var options = new DialogOptions() 
+        { 
+            CloseButton = true,
+            BackdropClick = true,
+            CloseOnEscapeKey = true
+        };
+
+        var dialog = await DialogService.ShowAsync<CreateSubjectFormDialog>("Create", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            // feature for updating data without refreshing page
+            // var callBackData = result.Data;
+            // tableItems.Add(new SubjectDto { Name = (string)callBackData });
+            StateHasChanged();
+            NavManager.Refresh(true);
+        }
+    }
+
+    private async Task OpenEditDialogAsync(SubjectDto current)
+    {
+        var parameters = new DialogParameters<EditSubjectFormDialog>
+        {
+            { x => x.CurrentSubject, current },
+            { x => x.ActionMethod, new Func<int, SubjectDto,Task>(EditItemAsync)}
+        };
+
+        var options = new DialogOptions() 
+        { 
+            CloseButton = true, 
+            BackdropClick = true, 
+            CloseOnEscapeKey = true 
+        };
+
+        var dialog = await DialogService.ShowAsync<EditSubjectFormDialog>("Edit", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            // feature for updating data without refreshing page
+            // var callBackData = (SubjectDto)result.Data;
+            // var ind = tableItems.FindIndex(s => s.Id == callBackData?.Id);
+            // tableItems.RemoveAt(ind);
+            // tableItems.Insert(ind, callBackData);
+            StateHasChanged();
+            NavManager.Refresh(true);
+        }
+    }
+
+    private async Task OpenDeleteDialogAsync(int id)
+    {
+        var parameters = new DialogParameters<DeleteDialog>
+        {
+            { x => x.ElementId, id },
+            { x => x.ActionMethod, new Func<int,Task>(DeleteItemAsync)}
+        };
+
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            BackdropClick = true,
+            CloseOnEscapeKey = true
+        };
+
+        var dialog = await DialogService.ShowAsync<DeleteDialog>("Delete", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            // feature for updating data without refreshing page
+            // var callBackData = result.Data;
+            // tableItems.RemoveAll(subject => subject.Id == (int)callBackData);
+            StateHasChanged();
+            NavManager.Refresh(true);
+        }
+    }
+
+    private async Task CreateItemAsync(SubjectDto dto)
+    {
+        try
+        {
+            await subjectService.CreateAsync(dto);
+        }
+        catch
+        {
+            NavManager.NavigateTo("/error");
+        }
+    }
+
+    private async Task EditItemAsync(int id, SubjectDto dto)
+    {
+        try
+        {
+            await subjectService.UpdateAsync(id, dto);
+        }
+        catch
+        {
+            NavManager.NavigateTo("/error");
+        }
+    }
+
+    private async Task DeleteItemAsync(int id)
+    {
+        try
+        {
+            await subjectService.DeleteAsync(id);
+        }
+        catch
+        {
+            NavManager.NavigateTo("/error");
+        }
+    }
+}

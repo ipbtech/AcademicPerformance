@@ -34,6 +34,9 @@ namespace AcademicPerformance.DAL
                 .HasForeignKey(score => score.StudentId).HasPrincipalKey(student => student.Id)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Subject>().HasIndex(e => e.Name).IsUnique();
+            modelBuilder.Entity<Student>().HasIndex(e => e.Name).IsUnique();
+            modelBuilder.Entity<Score>().HasIndex(e => new { e.StudentId, e.SubjectId} ).IsUnique();
             modelBuilder.Seed();
         }
     }

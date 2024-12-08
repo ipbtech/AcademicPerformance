@@ -2,6 +2,7 @@
 {
     public enum ScoreValue
     {
+        VaryBad = 1,
         Bad = 2,
         OK = 3,
         Good = 4,
