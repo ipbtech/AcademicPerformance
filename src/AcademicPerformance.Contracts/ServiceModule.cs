@@ -1,4 +1,5 @@
 ﻿using AcademicPerformance.DTO;
+using AcademicPerformance.DTO.Reports;
 
 namespace AcademicPerformance.Contracts
 {
@@ -11,5 +12,11 @@ namespace AcademicPerformance.Contracts
     {
         public Task<IEnumerable<ScoreDto>> GetStudentScoresAsync(int studentId);
         public Task UpdateStudentScoresAsync(IEnumerable<ScoreDto> scores);
+    }
+
+    public interface IReportService
+    {
+        public Task<TotalGradesDto> GetTotalGradesAsync();
+        public Task<GradesBySubjectsDto> GetGradesBySubjectsAsync();
     }
 }

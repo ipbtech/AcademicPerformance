@@ -20,6 +20,7 @@ builder.Services.AddDbContextPool<AppDbContext>(opt => opt.UseSqlite(connString)
 
 builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddAutoMapper(opt => opt.AddProfile<MappingProfile>());
 
 
