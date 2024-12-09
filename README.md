@@ -6,7 +6,9 @@
 3. MudBlazor Component Library
 4. SQLite
 5. EntityFramework Core
-6. Automapper
+6. Bogus
+7. Automapper
+8. xUnit testing
 
 ## Features
 
