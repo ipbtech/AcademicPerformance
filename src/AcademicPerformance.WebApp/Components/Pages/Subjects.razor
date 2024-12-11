@@ -47,8 +47,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var items = await subjectService.GetAllWithScoresAsync();
-        tableItems = items.ToList();
+        try
+        {
+            var items = await subjectService.GetAllWithScoresAsync();
+            tableItems = items.ToList();
+        }
+        catch
+        {
+            NavManager.NavigateTo("/error");
+        }
     }
 
     private bool FilterItems(SubjectDto element)
