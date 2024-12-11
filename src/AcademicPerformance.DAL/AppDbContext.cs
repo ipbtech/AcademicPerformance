@@ -5,7 +5,7 @@ namespace AcademicPerformance.DAL
 {
     public class AppDbContext : DbContext
     {
-        private readonly string? _connStr;
+        private readonly string? _providerName;
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<Student> Students { get; set; }
         public DbSet<Score> Scores { get; set; }
@@ -15,8 +15,8 @@ namespace AcademicPerformance.DAL
             if (!Database.CanConnect())
                 throw new Exception("Couldn't connect to the database");
 
-            _connStr = Database.ProviderName;
-            if (_connStr != "Microsoft.EntityFrameworkCore.InMemory" && Database.GetPendingMigrations().Any())
+            _providerName = Database.ProviderName;
+            if (_providerName != "Microsoft.EntityFrameworkCore.InMemory" && Database.GetPendingMigrations().Any())
                 Database.Migrate();
         }
 
@@ -39,7 +39,7 @@ namespace AcademicPerformance.DAL
             modelBuilder.Entity<Student>().HasIndex(e => e.Name).IsUnique();
             modelBuilder.Entity<Score>().HasIndex(e => new { e.StudentId, e.SubjectId} ).IsUnique();
 
-            if (_connStr != "Microsoft.EntityFrameworkCore.InMemory")
+            if (_providerName != "Microsoft.EntityFrameworkCore.InMemory")
                 modelBuilder.Seed();
         }
     }
