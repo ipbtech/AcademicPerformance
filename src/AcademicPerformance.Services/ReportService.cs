@@ -3,23 +3,19 @@ using AcademicPerformance.DAL;
 using AcademicPerformance.DTO.Reports;
 using AcademicPerformance.Entities.Enums;
 using AcademicPerformance.Entities.Projections;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.Linq;
 
 namespace AcademicPerformance.Services
 {
     public class ReportService : IReportService
     {
         private readonly AppDbContext _dbContext;
-        private readonly IMapper _mapper;
-        private readonly ILogger<SubjectService> _logger;
+        private readonly ILogger<ReportService> _logger;
 
-        public ReportService(AppDbContext dbContext, IMapper mapper, ILogger<SubjectService> logger)
+        public ReportService(AppDbContext dbContext, ILogger<ReportService> logger)
         {
             _dbContext = dbContext;
-            _mapper = mapper;
             _logger = logger;
         }
 

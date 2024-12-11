@@ -12,9 +12,9 @@ namespace AcademicPerformance.Services
     {
         private readonly AppDbContext _dbContext;
         private readonly IMapper _mapper;
-        private readonly ILogger<SubjectService> _logger;
+        private readonly ILogger<StudentService> _logger;
 
-        public StudentService(AppDbContext dbContext, IMapper mapper, ILogger<SubjectService> logger)
+        public StudentService(AppDbContext dbContext, IMapper mapper, ILogger<StudentService> logger)
         {
             _dbContext = dbContext;
             _mapper = mapper;
