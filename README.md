@@ -1,7 +1,7 @@
 # AcademicPerformance
 A light touch to the Blazor...
 
-Application where you can see your student's educational performance, manage their grades and create new students or educational subjects
+Application where you can manage educational subjects, students and thair grades and see BI-analytics with educational performance
 
 ## Technologies
 1. NET8
@@ -17,20 +17,15 @@ Application where you can see your student's educational performance, manage the
 ### Analitical dashboards
 ![image](https://github.com/user-attachments/assets/509b8eb2-4531-4082-86fd-71a13f819aa4)
 
-### Student's table
-**View all students in table with paging, searching by name**
+### Managing students and subjects
+**Viewing all students in table with paging and searching by name**
 ![image](https://github.com/user-attachments/assets/91b6f8e6-4d34-4c42-95a3-978ce5249f3b)
 
-**View all grades by student**
+**Viewing all grades by student**
 ![image](https://github.com/user-attachments/assets/004b7110-c1fb-41ed-b6d0-05540ad8baac)
 
-**Creating and deleting modal views**
+**Creating and deleting into modal views**
 ![image](https://github.com/user-attachments/assets/56f53c0a-6480-4c3d-97df-308c798598a6)
-
-### Subject's table
-**View all subjects in table with paging, searching by name. Creating and deleting items**
-![image](https://github.com/user-attachments/assets/ba8b66ca-2d1c-40a4-aed0-d3176a6cb8b0)
-
 
 ## Things to make better
 1. Creating and editing forms server validation (if entity already exist by his constraints)
